@@ -92,10 +92,10 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
 
 data "kubernetes_service" "nginx" {
   metadata {
-    name = "ingress-nginx-controller"
+    name      = "ingress-nginx-controller"
     namespace = "ingress-nginx"
   }
   depends_on = [
     helm_release.ingress-nginx
-  ] 
+  ]
 }
