@@ -8,11 +8,10 @@ module "cluster" {
     module.vpc.public_subnets,
   )
   vpc_id                         = module.vpc.vpc_id
-  map_roles                      = var.map_roles
   enable_irsa                    = false
-  default_platform               = "linux"
+  default_platform               = "linux" 
   cluster_endpoint_public_access = true
   worker_ami_owner_id            = "296578399912"
-  node_groups = var.clusters
+  node_groups                    = var.clusters
 }
 

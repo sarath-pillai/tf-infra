@@ -1,6 +1,6 @@
 variable "environment" {
   description = "Target environment where the resources will be deployed"
-  default = "demo"
+  default     = "demo"
 }
 
 variable "map_roles" {
@@ -27,14 +27,14 @@ variable "clusters" {
 
       instance_types = ["t3.large"]
       k8s_labels = {
-      workload-web-low = "accept",
-      workload-web-medium = "accept",
-      workload-web-critical = "accept"
+        workload-web-low      = "accept",
+        workload-web-medium   = "accept",
+        workload-web-critical = "accept"
       }
       additional_tags = {
         WorkLoadType = "web"
       }
     }
- }
+  }
 }
 
