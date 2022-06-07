@@ -104,3 +104,36 @@ resource "helm_release" "helm_release_external-dns" {
   ]
 }
 
+
+resource "helm_release" "ingress-nginx" {
+  name             = "ingress-nginx"
+  namespace        = "ingress-nginx"
+  repository       = "https://kubernetes.github.io/ingress-nginx"
+  chart            = "ingress-nginx"
+  version          = "4.0.13"
+  create_namespace = true
+  depends_on = [
+    module.cluster
+  ]
+}
+
+resource "helm_release" "cert-manager" {
+  name             = "cert-manager"
+  namespace        = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  create_namespace = true
+
+  set {
+    name  = "version"
+    value = "v1.4.0"
+  }
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+  depends_on = [
+    module.cluster,
+    helm_release.ingress-nginx
+  ]
+}
