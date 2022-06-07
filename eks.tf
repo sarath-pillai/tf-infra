@@ -83,7 +83,7 @@ resource "helm_release" "helm_release_external-dns" {
   name       = "external-dns"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "external-dns"
-  version    = "4.9.0"
+  version    = "6.5.3"
   namespace  = "kube-system"
   set {
     name  = "serviceAccount.create"
