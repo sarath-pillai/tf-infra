@@ -137,3 +137,39 @@ resource "helm_release" "cert-manager" {
     helm_release.ingress-nginx
   ]
 }
+
+resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt"
+    }
+    "spec" = {
+      "acme" = {
+        "email" = "sarath@slashroot.in"
+        "privateKeySecretRef" = {
+          "name" = "letsencrypt"
+        }
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "http01" = {
+              "ingress" = {
+                "class" = "nginx"
+              }
+            }
+          },
+        ]
+      }
+    }
+  }
+  depends_on = [
+    module.cluster,
+    helm_release.ingress-nginx,
+    helm_release.cert-manager,
+    helm_release.helm_release_external-dns
+  ]
+}
+
+
