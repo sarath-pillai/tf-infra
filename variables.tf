@@ -1,5 +1,6 @@
 variable "environment" {
   description = "Target environment where the resources will be deployed"
+  default = "demo"
 }
 
 variable "map_roles" {
