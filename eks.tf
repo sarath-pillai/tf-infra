@@ -7,10 +7,10 @@ module "cluster" {
     module.vpc.private_subnets,
     module.vpc.public_subnets,
   )
-  vpc_id                         = module.vpc.vpc_id
-  enable_irsa                    = false
-  manage_aws_auth                = false
-  default_platform               = "linux"
+  vpc_id           = module.vpc.vpc_id
+  enable_irsa      = false
+  manage_aws_auth  = false
+  default_platform = "linux"
   # write_kubeconfig cause permanent change detection by terraform
   # and is not a good method
   # See https://github.com/terraform-aws-modules/terraform-aws-eks/issues/1012#issuecomment-695028105
