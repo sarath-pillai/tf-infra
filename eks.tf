@@ -60,9 +60,9 @@ EOF
 resource "kubernetes_service_account" "serviceaccount-external_dns" {
   automount_service_account_token = true
   metadata {
-    name        = serviceaccount-external-dns
+    name        = "serviceaccount-external-dns"
     annotations = { "eks.amazonaws.com/role-arn" : module.assume_role_external_dns.this_iam_role_arn }
-    namespace   = kube-system
+    namespace   = "kube-system"
   }
 }
 
