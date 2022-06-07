@@ -24,87 +24,6 @@ module "cluster" {
 
 ####Additiaonl Services on top of eks######
 
-resource "aws_iam_policy" "external_dns_iam_policy" {
-  name        = "${var.environment}-external-dns-iam-policy"
-  path        = "/"
-  description = "external dns policy"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "route53:ChangeResourceRecordSets"
-      ],
-      "Resource": [
-        "arn:aws:route53:::hostedzone/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "route53:ListHostedZones",
-        "route53:ListResourceRecordSets"
-      ],
-      "Resource": [
-        "*"
-      ]
-    }
-  ]
-}
-EOF
-}
-
-resource "kubernetes_service_account" "serviceaccount-external_dns" {
-  automount_service_account_token = true
-  metadata {
-    name        = "serviceaccount-external-dns"
-    annotations = { "eks.amazonaws.com/role-arn" : module.assume_role_external_dns.this_iam_role_arn }
-    namespace   = "kube-system"
-  }
-}
-
-module "assume_role_external_dns" {
-  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version                       = "3.6.0"
-  create_role                   = true
-  role_name                     = "${var.environment}-external-dns-iam-role"
-  provider_url                  = replace(module.cluster.cluster_oidc_issuer_url, "https://", "")
-  role_policy_arns              = [aws_iam_policy.external_dns_iam_policy.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:serviceaccount-external-dns"]
-  depends_on = [
-    module.cluster,
-  ]
-}
-
-resource "helm_release" "helm_release_external-dns" {
-  name       = "external-dns"
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "external-dns"
-  version    = "6.5.3"
-  namespace  = "kube-system"
-  set {
-    name  = "serviceAccount.create"
-    value = "false"
-  }
-  set {
-    name  = "serviceAccount.name"
-    value = "serviceaccount-external-dns"
-  }
-  set {
-    name  = "policy"
-    value = "upsert-only"
-  }
-  depends_on = [
-    module.cluster,
-    module.assume_role_external_dns,
-    kubernetes_service_account.serviceaccount-external_dns
-  ]
-}
-
-
 resource "helm_release" "ingress-nginx" {
   name             = "ingress-nginx"
   namespace        = "ingress-nginx"
@@ -167,9 +86,16 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
   depends_on = [
     module.cluster,
     helm_release.ingress-nginx,
-    helm_release.cert-manager,
-    helm_release.helm_release_external-dns
+    helm_release.cert-manager
   ]
 }
 
-
+data "kubernetes_service" "nginx" {
+  metadata {
+    name = "ingress-nginx-controller"
+    namespace = "ingress-nginx"
+  }
+  depends_on = [
+    helm_release.ingress-nginx
+  ] 
+}

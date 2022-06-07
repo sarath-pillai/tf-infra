@@ -38,3 +38,6 @@ variable "clusters" {
   }
 }
 
+variable "domain_name" {
+  default = "demo.slashroot.in"
+}
