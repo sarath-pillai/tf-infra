@@ -7,7 +7,7 @@ resource "aws_route53_record" "www-dev" {
   name    = "*"
   type    = "CNAME"
   ttl     = "300"
-  records = data.kubernetes_service.nginx.spec[0].external_ips
+  records = [data.kubernetes_service.nginx.spec[0].external_ips]
   depends_on = [
     helm_release.ingress-nginx
   ]
