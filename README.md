@@ -26,8 +26,16 @@ This repository is mainly terraform HCL content. The terraform resources defined
 |domain_name|The zone for route53|
 |environment|The environment name that will be added to different resource names. Default is demo|
 
+
+We use the publicly available terraform modules for EKS & VPC to achieve some of our work here. Mainly to stick with DRY principle, We can also create our own module and house it inside a dedicated git repository named as `tf-modules` and reference it from another repository. 
+
+The load balancer created in this infrastructure does not have an SSL certificate attached to it. The SSL certificate is attached and served by nginx ingress controller. Nginx controller uses the certificate created by certificate manager for letsencrypt. There are several advantages to this. The main one being that traffic is end to end encrypted (in other cases, traffic between the load balancer and the backend kubernetes node in aws is not encrypted).
+
+Apart from using this certificate manager for auto renewal, we could have also used ALB ingress controller with proper annotations and ACM for SSL certificates. This way 3 months renewal process is not required. 
+
 ### How does this get deployed
-This repository uses Github workflow as its deployment method. I have selected github workflow for illustration purpose only. This can be adapted to use Jenkins by committing a Jenkinsfile to the root of the repository as well.  Or any other CI tool for that matter. Any commits to the main branch gets auto deployed to AWS cloud using github workflow. 
+This repository uses Github workflow as its deployment method. I have selected github workflow for illustration purpose only. This can be adapted to use Jenkins by committing a Jenkinsfile to the root of the repository as well.  Or any other CI tool for that matter. Any commits to the main branch gets auto deployed to AWS cloud using github workflow. You can see the workflow configuration file here: https://github.com/sarath-pillai/tf-infra/blob/main/.github/workflows/actions.yaml
+
 
 Once the cluster is deployed, the terraform helm provider uses EKS cluster outputs for initializing itself. Helm then can deploy stuff like nginx-ingress & cert-manager. 
 
